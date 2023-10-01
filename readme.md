@@ -48,7 +48,22 @@
     - `$ ./ll.js https://en.wikipedia.org/wiki/Special:Random`
   - I will start by building out the argument parsing with [`node:util.parseArgs`](https://nodejs.org/api/util.html#utilparseargsconfig)
   - Then I will build the logic of saving / loading a file using the [fs.promises](https://nodejs.org/api/fs.html#promises-api), combined with [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
-  - Then I will install jsdom and 
 
+### JSDOM version:
+
+  - I will install jsdom and follow their docs to allow use of queryselectors to find all anchors, and then print the href value of each anchor if it exists.
+
+  - jsdom makes this task easy work. This entire project could scrunched into a hard to read, but super compact oneliner:
+
+  >  ```bash
+  >  npm ls jsdom >/dev/null || npm install jsdom && node -e "const { JSDOM } = require('jsdom'); JSDOM.fromURL(process.argv[1]).then(dom=>[].slice.call(dom.window.document.getElementsByTagName('a')).forEach(e=>(e.href)&&console.log(e.href)));" https://wikipedia.org
+  >  ```
+
+  - a simplified and easier to read version of this is saved in [./ll-jsdom-min.js](./ll-jsdom-min.js)
 
 ### Vanilla JS Version:
+
+  - Since nodejs doesn't provide a XML or HTML parser out of the box, we are going to have to write our own.
+  - It is very common for html to have syntax errors that are uncorrected, we will have to account for this.
+  - We will also need to account for commenting in both html `<!-- -->` and in `<style>` and `<script>` blocks: `//` & `/* */`. we can avoid this by just removing `<style>` and `<script>` blocks.
+  - starting out, we want to remove all commented code

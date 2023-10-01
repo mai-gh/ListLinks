@@ -65,5 +65,14 @@
 
   - Since nodejs doesn't provide a XML or HTML parser out of the box, we are going to have to write our own.
   - It is very common for html to have syntax errors that are uncorrected, we will have to account for this.
-  - We will also need to account for commenting in both html `<!-- -->` and in `<style>` and `<script>` blocks: `//` & `/* */`. we can avoid this by just removing `<style>` and `<script>` blocks.
-  - starting out, we want to remove all commented code
+  - We will also need to account for HTML comments `<!-- -->` and `<style>` / `<script>` blocks.
+  - We can avoid dealing with C style comments in JS & CSS by just removeing these elements entirely.
+  - starting out, we want to remove all commented `<script>` & `<style>` blocks, then all html comments.
+  - next we make an array of every section between `<a ... </a>`.
+  - Then we retrieve the value for the `href` attribute.
+  - Then we do little fixups that the dom would otherwise handle for us.
+  - [Take a look at the code for more details](./ll.js?plain=1#L104)
+
+
+
+

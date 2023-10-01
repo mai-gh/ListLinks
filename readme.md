@@ -25,10 +25,11 @@
         > The LINK element may only appear in the head of a document. The A element may only appear in the body.
 
 - I will make two variants:
-    1. Vanilla JS only
-    2. With the [jsdom](https://github.com/jsdom/jsdom) library
+    1. With the [jsdom](https://github.com/jsdom/jsdom) library. (jsdom)
+    2. Vanilla JS using regular expressions. (regex)
+    3. Vanilla JS using string / array manipulation methods. (split)
 
-- I am using version `20.7.0` of `node`
+- I am using version `20.8.0` of `node`
 
 ---
 
@@ -46,7 +47,8 @@
     - `$ ./ll.js --from-file wikipedia.org.html https://wikipedia.org`
     - `$ ./ll.js https://en.wikipedia.org/wiki/Special:Random`
   - I will start by building out the argument parsing with [`node:util.parseArgs`](https://nodejs.org/api/util.html#utilparseargsconfig)
-  
+  - Then I will build the logic of saving / loading a file using the [fs.promises](https://nodejs.org/api/fs.html#promises-api), combined with [fetch](https://developer.mozilla.org/en-US/docs/Web/API/fetch).
+  - Then I will install jsdom and 
 
 
 ### Vanilla JS Version:

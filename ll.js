@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 
 const { parseArgs } = require("node:util");
+const { readFile, writeFile } = require('node:fs/promises');
+const { JSDOM } = require("jsdom");
 
 const options = {
   "save-file": {
@@ -38,7 +40,10 @@ const args = parseArgs({
 const printHelp = () => {
   console.log();
   console.log(
-    `${process.argv[1]} [ --save-path FILE | --from-file FILE ] [ --mode vanilla | jsdom ] [ --debug ] [ --help ] URL`,
+    process.argv[1],
+    "[ --save-path FILE | --from-file FILE ]",
+    "[ --mode vanilla | jsdom ] ",
+    "[ --debug ] [ --help ] URL"
   );
   console.log();
   console.log("The following arguements are supported:");
@@ -46,7 +51,7 @@ const printHelp = () => {
     console.log(`--${cmd}, -${val.short}\t: ${val.type}\t ${val.info}`);
   }
   console.log();
-  console.log( "** A URL is ALWAYS required in order to process relative links.");
+  console.log("** A URL is ALWAYS required in order to process relative links.");
   console.log();
   process.exit();
 };
@@ -56,26 +61,29 @@ const isValidHttpUrl = (string) => {
   try {
     url = new URL(string);
   } catch (_) {
-    return false;  
+    return false;
   }
   return url.protocol === "http:" || url.protocol === "https:";
-}
+};
 
 if (args.values.help) printHelp();
 if (!args.positionals[0]) throw new Error("Must provide a URL");
 const target = args.positionals[0];
 if (!isValidHttpUrl(target)) throw new Error(`Invalid HTTP(S) URL: ${target}`);
+if (args.values["save-file"] && args.values["from-file"]) throw new Error("Invalid save / load combination");
 
-if (args.values["save-page"] && args.values["from-file"])
-  throw new Error("Invalid save / load combination");
-
-//filename = filename.replace(/[/\\?%*:|"<>]/g, '-');
-
-/*
 (async ()=>{
-  const resp = await fetch('https://wikipedia.org');
-  const text = await resp.text();
-  console.log(text);
+  let text;
+  if (args.values["from-file"]) {
+    html = await readFile(args.values["from-file"], 'utf-8');
+  } else {
+    const resp = await fetch(target);
+    html = await resp.text();
+    if (args.values["save-file"]) await writeFile(args.values["save-file"], html);
+  }
+  const dom = new JSDOM(html, {url: target});
+  const anchors = [].slice.call(dom.window.document.getElementsByTagName("a"));
+  anchors.forEach( element => (element.href) && console.log(element.href) );
 })()
 
-*/
+

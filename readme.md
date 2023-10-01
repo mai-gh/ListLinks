@@ -28,7 +28,7 @@
     1. Vanilla JS only
     2. With the [jsdom](https://github.com/jsdom/jsdom) library
 
-- I am using version `20.7.0` of `node
+- I am using version `20.7.0` of `node`
 
 ---
 
@@ -45,7 +45,7 @@
     - `$ ./ll.js --save-file wikipedia.org.html https://wikipedia.org`
     - `$ ./ll.js --from-file wikipedia.org.html https://wikipedia.org`
     - `$ ./ll.js https://en.wikipedia.org/wiki/Special:Random`
-  - I will start by building out the arguement parsing with [`node:util.parseArgs`](https://nodejs.org/api/util.html#utilparseargsconfig)
+  - I will start by building out the argument parsing with [`node:util.parseArgs`](https://nodejs.org/api/util.html#utilparseargsconfig)
   
 
 

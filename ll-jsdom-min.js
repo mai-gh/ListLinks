@@ -2,7 +2,14 @@
 
 const { JSDOM } = require("jsdom");
 
-(async ()=>{
+(async () => {
+
   const dom = await JSDOM.fromURL(process.argv[2]);
-  [].slice.call(dom.window.document.getElementsByTagName("a")).forEach(e=>(e.href)&&console.log(e.href));
-})()
+  const anchorArray = [].slice.call(dom.window.document.getElementsByTagName("a"));
+  const found = anchorArray.map((e) => {
+    if (e.href) return e.href;
+  });
+
+  console.log(found.join("\r\n"));
+
+})();

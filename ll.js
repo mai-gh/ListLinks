@@ -18,7 +18,7 @@ const options = {
     type: "string",
     short: "m",
     info: "Link parsing mode. either 'vanilla' or 'jsdom'. Defaults to 'vanilla'.",
-    default: "vanilla"
+    default: "vanilla",
   },
   help: {
     type: "boolean",
@@ -74,7 +74,10 @@ if (!isValidHttpUrl(target)) throw new Error(`Invalid HTTP(S) URL: ${target}`);
 const targetURL = new URL(target);
 const protocol = targetURL.protocol;
 const origin = targetURL.origin;
-const basePath = ((!target.endsWith('/')) && ((target.match(/\//g) || []).length == 2)) ? target : target.substring(0, target.lastIndexOf("/"));
+const basePath =
+  !target.endsWith("/") && (target.match(/\//g) || []).length == 2
+    ? target
+    : target.substring(0, target.lastIndexOf("/"));
 
 if (args.values["save-file"] && args.values["from-file"]) throw new Error("Invalid save / load combination");
 
@@ -92,7 +95,7 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
     const { JSDOM } = require("jsdom");
     const dom = new JSDOM(html, { url: target });
     const anchors = [].slice.call(dom.window.document.getElementsByTagName("a"));
-    found = anchors.map(el => el.href );
+    found = anchors.map((el) => el.href);
   } else if (args.values.mode === "vanilla") {
     const script_tag_reg = /< *script([\s\S]*?)<\/script>/g;
     const style_tag_reg = /< *style([\s\S]*?)<\/style>/g;
@@ -103,13 +106,11 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
     html = html.replace(html_cmt_reg, "");
     found = html
       .match(a_tag_reg)
-      .filter(a => a.includes("href=") && !a.includes(`href=''`) && !a.includes(`href=""`))
-      .map(a => {
-
+      .filter((a) => a.includes("href=") && !a.includes(`href=''`) && !a.includes(`href=""`))
+      .map((a) => {
         // fix html encoded quotes since we need them.
         a = a.replace(/&quot;/g, `"`);
         a = a.replace(/&apos;/g, `'`);
-
 
         // split each <a> up by single or double quotes
         const anchorSplitArr = a.split(/['"]/);
@@ -142,5 +143,4 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
       });
   }
   console.log(found.join("\r\n"));
-  console.log(found.length);
 })();

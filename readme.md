@@ -10,11 +10,11 @@
 
 ## Initial Thoughts:
 
-- This sounds a lot like a tool I have used a lot in the past:
+- This sounds a lot like a tool I have used in the past:
 
 > `$ lynx --dump --listonly --nonumbers --hiddenlinks=merge https://wikipedia.org`
 
-- My first thought is I should only be targeting `<a href="...">` tags / attributes, but let's find some sources that define what a link is:
+- My first thought is that I should only be targeting `<a href="...">` tags / attributes, but let's find some sources that define what a link is:
     - [https://www.w3.org/TR/html401/struct/links.html#h-12.1](https://www.w3.org/TR/html401/struct/links.html#h-12.1) states:
 
         > A link has two ends -- called anchors -- and a direction. The link starts at the "source" anchor and points to the "destination" anchor, which may be any Web resource (e.g., an image, a video clip, a sound bite, a program, an HTML document, an element within an HTML document, etc.).

@@ -6,7 +6,7 @@ const { readFile, writeFile } = require("node:fs/promises");
 const options = {
   "save-file": {
     type: "string",
-    short: "S",
+    short: "s",
     info: 'Specify where you want to save the file. Ex: --save-file "/path/to/file.html".',
   },
   "from-file": {
@@ -22,7 +22,7 @@ const options = {
   },
   help: {
     type: "boolean",
-    short: "m",
+    short: "h",
     info: "Print this help message.",
   },
 };

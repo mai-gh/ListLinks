@@ -18,11 +18,7 @@ const options = {
     type: "string",
     short: "m",
     info: "Link parsing mode. either 'vanilla' or 'jsdom'. Defaults to 'vanilla'.",
-  },
-  debug: {
-    type: "boolean",
-    short: "v",
-    info: "Print extra info. Defaults to false.",
+    default: "vanilla"
   },
   help: {
     type: "boolean",
@@ -42,7 +38,7 @@ const printHelp = () => {
     process.argv[1],
     "[ --save-path FILE | --from-file FILE ]",
     "[ --mode vanilla | jsdom ] ",
-    "[ --debug ] [ --help ] URL",
+    "[ --help ] URL",
   );
   console.log();
   console.log("The following arguements are supported:");
@@ -96,10 +92,7 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
     const { JSDOM } = require("jsdom");
     const dom = new JSDOM(html, { url: target });
     const anchors = [].slice.call(dom.window.document.getElementsByTagName("a"));
-    found = anchors.map((element) => {
-      element.href && console.log(element.href);
-      return element.href;
-    });
+    found = anchors.map(el => el.href );
   } else if (args.values.mode === "vanilla") {
     const script_tag_reg = /< *script([\s\S]*?)<\/script>/g;
     const style_tag_reg = /< *style([\s\S]*?)<\/style>/g;
@@ -114,7 +107,6 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
       .map(a => {
 
         // fix html encoded quotes since we need them.
-        // https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML
         a = a.replace(/&quot;/g, `"`);
         a = a.replace(/&apos;/g, `'`);
 
@@ -146,9 +138,9 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
           // fix relative links
           h = basePath + "/" + h;
         }
-        console.log(h);
         return h;
       });
   }
+  console.log(found.join("\r\n"));
   console.log(found.length);
 })();

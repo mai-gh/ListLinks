@@ -25,9 +25,8 @@
         > The LINK element may only appear in the head of a document. The A element may only appear in the body.
 
 - I will make two variants:
-    1. With the [jsdom](https://github.com/jsdom/jsdom) library. (jsdom)
-    2. Vanilla JS using regular expressions. (regex)
-    3. Vanilla JS using string / array manipulation methods. (split)
+    1. With the [jsdom](https://github.com/jsdom/jsdom) library.
+    2. Vanilla JS using regular expressions & string / array manipulations . 
 
 - I am using version `20.8.0` of `node`
 
@@ -56,7 +55,7 @@
   - jsdom makes this task easy work. This entire project could scrunched into a hard to read, but super compact oneliner:
 
   >  ```bash
-  >  npm ls jsdom >/dev/null || npm install jsdom && node -e "const { JSDOM } = require('jsdom'); JSDOM.fromURL(process.argv[1]).then(dom=>[].slice.call(dom.window.document.getElementsByTagName('a')).forEach(e=>(e.href)&&console.log(e.href)));" https://wikipedia.org
+  >  npm ls jsdom >/dev/null || npm install jsdom && node -e "const {JSDOM}=require('jsdom');JSDOM.fromURL(process.argv[1]).then(dom=>[].slice.call(dom.window.document.getElementsByTagName('a')).forEach(e=>(e.href)&&console.log(e.href)));" https://wikipedia.org
   >  ```
 
   - a simplified and easier to read version of this is saved in [./ll-jsdom-min.js](./ll-jsdom-min.js)
@@ -66,13 +65,32 @@
   - Since nodejs doesn't provide a XML or HTML parser out of the box, we are going to have to write our own.
   - It is very common for html to have syntax errors that are uncorrected, we will have to account for this.
   - We will also need to account for HTML comments `<!-- -->` and `<style>` / `<script>` blocks.
-  - We can avoid dealing with C style comments in JS & CSS by just removeing these elements entirely.
-  - starting out, we want to remove all commented `<script>` & `<style>` blocks, then all html comments.
-  - next we make an array of every section between `<a ... </a>`.
+  - We can avoid dealing with C style comments in JS & CSS by just removing these elements entirely.
+  - Starting out, we want to remove all commented `<script>` & `<style>` blocks, then all html comments.
+  - Next we make an array of every section between `<a ... </a>`.
   - Then we retrieve the value for the `href` attribute.
   - Then we do little fixups that the dom would otherwise handle for us.
   - [Take a look at the code for more details](./ll.js?plain=1#L104)
 
+### Caveats:
 
+  - Both approaches are not fool-proof. Modern web browsers do all types of gymnastics to deal with illegally formatted code. Without going crazy over a potentially endless amout of edge cases, there will always be bugs.
+  - Not all html character encodings are handled. [List of character entity references in HTML](https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML)
+  - Redirects: `fetch` seems to generaly handle these ok, but when I tried `./ll.js https://aliexpress.com` it complains about ` redirect count exceeded`.
+  - Dynamically generated DOM elements: I made no attempt to try to support this. jsdom has an option to run  client side scripts, [but even they say it's dangerous](https://github.com/jsdom/jsdom#executing-scripts).
+  - I didn't write any unit tests. Mostly because test coverage on this is about as huge as mapping all edge cases.
 
+---
 
+## Usage:
+
+```bash
+
+git clone https://github.com/mai-gh/ListLinks.git
+cd ListLinks
+./ll.js --help
+./ll.js https://wikipedia.com
+npm install
+./ll.js --mode jsdom https://wikipedia.com
+
+```

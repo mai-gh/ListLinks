@@ -37,7 +37,7 @@ const printHelp = () => {
   console.log(
     process.argv[1],
     "[ --save-path FILE | --from-file FILE ]",
-    "[ --mode vanilla | jsdom ] ",
+    "[ --mode vanilla | jsdom ]",
     "[ --help ] URL",
   );
   console.log();

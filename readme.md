@@ -36,7 +36,7 @@
 
 ### Starting Out:
 
-  - When I develop "web scraper" type programs, I prefer to used static data because:
+  - When I develop "web scraper" type programs, I prefer to use static data because:
     1. it doesn't change.
     2. it prevents unnecessary network calls.
   - I would normally do this with `$ curl https://wikipedia.org > wikipedia.html`. 
@@ -66,7 +66,7 @@
   - It is very common for html to have syntax errors that are uncorrected, we will have to account for this.
   - We will also need to account for HTML comments `<!-- -->` and `<style>` / `<script>` blocks.
   - We can avoid dealing with C style comments in JS & CSS by just removing these elements entirely.
-  - Starting out, we want to remove all commented `<script>` & `<style>` blocks, then all html comments.
+  - Starting out, we want to remove all `<script>` & `<style>` blocks, then all html comments.
   - Next we make an array of every section between `<a ... </a>`.
   - Then we retrieve the value for the `href` attribute.
   - Then we do little fixups that the dom would otherwise handle for us.

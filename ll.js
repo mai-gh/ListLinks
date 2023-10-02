@@ -14,16 +14,20 @@ const options = {
     short: "f",
     info: 'Specify which file you want to open. Ex: --from-file "/path/to/file.html".',
   },
-  mode: {
-    type: "string",
+  jsdom: {
+    type: "boolean",
     short: "m",
-    info: "Link parsing mode. either 'vanilla' or 'jsdom'. Defaults to 'vanilla'.",
-    default: "vanilla",
+    info: "Use the jsdom library to find the links instead of the internal regex based algorithm",
   },
   help: {
     type: "boolean",
     short: "h",
     info: "Print this help message.",
+  },
+  debug: {
+    type: "boolean",
+    short: "d",
+    info: "Print extra debug info (for vanilla mode).",
   },
 };
 
@@ -36,9 +40,7 @@ const printHelp = () => {
   console.log();
   console.log(
     process.argv[1],
-    "[ --save-path FILE | --from-file FILE ]",
-    "[ --mode vanilla | jsdom ]",
-    "[ --help ] URL",
+    "[ --save-path FILE | --from-file FILE ] [ --jsdom ] [ --debug ] [ --help ] URL",
   );
   console.log();
   console.log("The following arguements are supported:");
@@ -66,6 +68,10 @@ const getProtocol = (str) => {
   return url.protocol;
 };
 
+const debugPrint = (info) => {
+  if (args.values.debug) console.log(info);
+};
+
 if (args.values.help) printHelp();
 if (!args.positionals[0]) throw new Error("Must provide a URL");
 const target = args.positionals[0];
@@ -91,12 +97,12 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
     if (args.values["save-file"]) await writeFile(args.values["save-file"], html);
   }
 
-  if (args.values.mode === "jsdom") {
+  if (args.values.jsdom) {
     const { JSDOM } = require("jsdom");
     const dom = new JSDOM(html, { url: target });
     const anchors = [].slice.call(dom.window.document.getElementsByTagName("a"));
-    found = anchors.map((el) => el.href);
-  } else if (args.values.mode === "vanilla") {
+    found = anchors.filter(el=>el.href.length > 0).map((el) => el.href);
+  } else {
     const script_tag_reg = /< *script([\s\S]*?)<\/script>/g;
     const style_tag_reg = /< *style([\s\S]*?)<\/style>/g;
     const a_tag_reg = /< *a *([\s\S]*?)>/g;
@@ -108,21 +114,27 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
       .match(a_tag_reg)
       .filter((a) => a.includes("href=") && !a.includes(`href=''`) && !a.includes('href=""'))
       .map((a) => {
+
         // fix html encoded quotes since we need them.
         a = a.replace(/&quot;/g, `"`);
         a = a.replace(/&apos;/g, `'`);
+        a = a.replace(/&amp;/g, `&`);
 
-        // split each <a> up by single or double quotes
-        const anchorSplitArr = a.split(/['"\s]/);
-//        console.log(anchorSplitArr);
+        // split each <a> up by single / double quotes or whitespace
+        const anchorSplitArr = a.split(/['"\s>]/);
+        debugPrint(anchorSplitArr);
         // find the index for the attribute declaration `href`
         const hrefIDX = anchorSplitArr.findIndex((s) => s.endsWith("href=") || s.startsWith("href="));
-//        console.log("idx:", hrefIDX);
+        debugPrint(`idx: ${hrefIDX}`);
         // the url is the next item, unless they forgot to use quotes...
-        let h = (anchorSplitArr[hrefIDX].startsWith("href=") && (anchorSplitArr[hrefIDX] !== 'href='))
-          ? anchorSplitArr[hrefIDX].replace(/^(href=)/,"")
-          : anchorSplitArr[hrefIDX + 1];
-//        console.log(h);
+        let h =
+          anchorSplitArr[hrefIDX].startsWith("href=") && anchorSplitArr[hrefIDX] !== "href="
+            ? anchorSplitArr[hrefIDX].replace(/^(href=)/, "")
+            : anchorSplitArr[hrefIDX + 1];
+        debugPrint(`initial h: ${h}`);
+        debugPrint(`origin: ${origin}`)
+
+        //h.replace(/\>$/, "");
 
         // yahoo.com html encodes characters with hex values.
         h = h.replace(/&#x([a-fA-F0-9]+);/g, (match, group1) => {
@@ -131,21 +143,27 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
         });
         // Tying up loose ends... mostly with relative links or id anchors
         if (h.startsWith("//")) {
-          // fix inherited protocol
+          // inherited protocol
           h = protocol + h;
-        } else if (h.startsWith("#")) {
-          // id anchors for current page
+        } else if ((h.startsWith("#")) || (h.startsWith("?"))) {
+          // id anchors or query parameters for current page
+          //h = target + "/" + h;
           h = target + h;
         } else if (h.startsWith("/")) {
-          // fix root-relative links
+          // root-relative links
           h = origin + h;
         } else if (!h.includes(":")) {
-          // fix relative links
+          // relative links
           h = basePath + "/" + h;
         }
-//        console.log(h);
+
+        // URL interface is used to normalize what we got left.
+        h = new URL(h);
+        h = h.href;
+
+        debugPrint(`final h: ${h}`);
         return h;
       });
   }
-  console.log(found.join("\r\n"));
+  if ((!args.values.debug) || (args.values.jsdom)) console.log(found.join("\n"));
 })();

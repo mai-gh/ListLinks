@@ -76,7 +76,7 @@
 
   - Both approaches are not fool-proof. Modern web browsers do all types of gymnastics to deal with illegally formatted code. Without going crazy over a potentially endless amout of edge cases, there will always be bugs.
   - Not all html character encodings are handled. [List of character entity references in HTML](https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML)
-  - Redirects: `fetch` seems to generaly handle these ok, but when I tried `./ll.js https://aliexpress.com` it complains about `redirect count exceeded`.
+  - Redirects: `fetch` seems to generaly handle these ok, but when I tried `./ll.js https://twitter.com` it complains about `redirect count exceeded`. Using `ll-jsdom-min.js` works because it doesnt use `fetch`.
   - Dynamically generated DOM elements: I made no attempt to try to support this. jsdom has an option to run  client side scripts, [but even they say it's dangerous](https://github.com/jsdom/jsdom#executing-scripts).
   - I didn't write any unit tests. Mostly because test coverage on this is about as huge as mapping all edge cases.
 
@@ -91,6 +91,21 @@ cd ListLinks
 ./ll.js --help
 ./ll.js https://wikipedia.com
 npm install
-./ll.js --mode jsdom https://wikipedia.com
-
+./ll.js --jsdom https://wikipedia.com
 ```
+
+and to compare the jsdom version vs the vanilla version:
+```bash
+SITE='https://wikipedia.org'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://aol.com'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://yahoo.com'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://facebook.com'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://craigslist.org'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://cnn.com'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://hackernews.com'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://github.com/mai-gh'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://youtube.com'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+SITE='https://yandex.ru'; diff <(./ll.js $SITE) <(./ll.js --jsdom $SITE)
+```
+
+  - Try some more and let me know if it breaks!

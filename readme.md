@@ -76,7 +76,7 @@
 
   - Both approaches are not fool-proof. Modern web browsers do all types of gymnastics to deal with illegally formatted code. Without going crazy over a potentially endless amout of edge cases, there will always be bugs.
   - Not all html character encodings are handled. [List of character entity references in HTML](https://en.wikipedia.org/wiki/List_of_XML_and_HTML_character_entity_references#Character_entity_references_in_HTML)
-  - Redirects: `fetch` seems to generaly handle these ok, but when I tried `./ll.js https://aliexpress.com` it complains about ` redirect count exceeded`.
+  - Redirects: `fetch` seems to generaly handle these ok, but when I tried `./ll.js https://aliexpress.com` it complains about `redirect count exceeded`.
   - Dynamically generated DOM elements: I made no attempt to try to support this. jsdom has an option to run  client side scripts, [but even they say it's dangerous](https://github.com/jsdom/jsdom#executing-scripts).
   - I didn't write any unit tests. Mostly because test coverage on this is about as huge as mapping all edge cases.
 

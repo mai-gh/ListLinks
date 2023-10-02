@@ -99,32 +99,36 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
   } else if (args.values.mode === "vanilla") {
     const script_tag_reg = /< *script([\s\S]*?)<\/script>/g;
     const style_tag_reg = /< *style([\s\S]*?)<\/style>/g;
-    const a_tag_reg = /< *a ([\s\S]*?)>/g;
+    const a_tag_reg = /< *a *([\s\S]*?)>/g;
     const html_cmt_reg = /(\<!--([\s\S]*?)\-->)/g;
     html = html.replace(script_tag_reg, "");
     html = html.replace(style_tag_reg, "");
     html = html.replace(html_cmt_reg, "");
     found = html
       .match(a_tag_reg)
-      .filter((a) => a.includes("href=") && !a.includes(`href=''`) && !a.includes(`href=""`))
+      .filter((a) => a.includes("href=") && !a.includes(`href=''`) && !a.includes('href=""'))
       .map((a) => {
         // fix html encoded quotes since we need them.
         a = a.replace(/&quot;/g, `"`);
         a = a.replace(/&apos;/g, `'`);
 
         // split each <a> up by single or double quotes
-        const anchorSplitArr = a.split(/['"]/);
+        const anchorSplitArr = a.split(/['"\s]/);
+//        console.log(anchorSplitArr);
         // find the index for the attribute declaration `href`
-        const hrefIDX = anchorSplitArr.findIndex((s) => s.endsWith("href="));
-        // the url is the next item
-        let h = anchorSplitArr[hrefIDX + 1];
+        const hrefIDX = anchorSplitArr.findIndex((s) => s.endsWith("href=") || s.startsWith("href="));
+//        console.log("idx:", hrefIDX);
+        // the url is the next item, unless they forgot to use quotes...
+        let h = (anchorSplitArr[hrefIDX].startsWith("href=") && (anchorSplitArr[hrefIDX] !== 'href='))
+          ? anchorSplitArr[hrefIDX].replace(/^(href=)/,"")
+          : anchorSplitArr[hrefIDX + 1];
+//        console.log(h);
 
         // yahoo.com html encodes characters with hex values.
         h = h.replace(/&#x([a-fA-F0-9]+);/g, (match, group1) => {
           const num = parseInt(group1, 16);
           return String.fromCharCode(num);
         });
-
         // Tying up loose ends... mostly with relative links or id anchors
         if (h.startsWith("//")) {
           // fix inherited protocol
@@ -139,6 +143,7 @@ if (args.values["save-file"] && args.values["from-file"]) throw new Error("Inval
           // fix relative links
           h = basePath + "/" + h;
         }
+//        console.log(h);
         return h;
       });
   }
